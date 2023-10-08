@@ -16,19 +16,16 @@ import Icon from 'react-native-vector-icons/Ionicons'
 
 const CustomList = (props) => {
     return (
-        <TouchableOpacity 
+        <TouchableOpacity
             style={styles.predictionListBtn}
             onPress={() => {
-                props.navi.navigation.navigate('UserInput', {
-                    title: props.title,
-                    uri: props.uri
-                })
+                props.navi.navigation.navigate('UserInput', props.params)
             }}
         >
             <Text style={styles.predictionListBtnText}>{props.text1} {props.text2}</Text>
         </TouchableOpacity>
     )
-} 
+}
 
 
 
@@ -38,7 +35,17 @@ const CustomList = (props) => {
 
 
 const Prediction = (props) => {
+
+    //로그인 확인
     const { params } = props.route;
+    const num = params ? params.num : null;
+    const id = params ? params.id : null;
+    const pw = params ? params.pw : null;
+    const name = params ? params.name : null;
+    const email = params ? params.email : null;
+    const phone = params ? params.phone : null;
+
+
     const imgUri = params ? params.imgUri : null;
     const [prediction, setPrediction] = useState({});
     const [isLoading, setIsLoading] = useState(true);
@@ -90,13 +97,35 @@ const Prediction = (props) => {
     return (
         <View style={styles.mainView}>
             <View style={styles.iconView}>
-                <TouchableOpacity 
-                    style={styles.icon}
+                <TouchableOpacity
+                    style={[styles.icon, { left: 50 }]}
                     onPress={() => {
-                        props.navigation.navigate('UserCamera')
+                        props.navigation.navigate('UserCamera', {
+                            num: num,
+                            id: id,
+                            pw: pw,
+                            phone: phone,
+                            name: name,
+                            email: email,
+                        })
                     }}
                 >
-                    <Icon name= 'camera-outline' size={30} color= 'black'/>
+                    <Icon name='camera-outline' size={30} color='black' />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.icon}
+                    onPress={() => {
+                        props.navigation.navigate('Main', {
+                            num: num,
+                            id: id,
+                            pw: pw,
+                            phone: phone,
+                            name: name,
+                            email: email,
+                        })
+                    }}
+                >
+                    <Icon name='home-outline' size={30} color='black' />
                 </TouchableOpacity>
             </View>
             {prediction ? (
@@ -106,44 +135,92 @@ const Prediction = (props) => {
                         style={styles.predictionImage}
                     />
                     <CustomList
-                        text1= {`1. ${prediction.label1_1}`}
-                        text2= {`${prediction.label1_2}`}
-                        title= {prediction.label1_1}
-                        navi= {props}
-                        uri= {imgUri}
+                        text1={`1. ${prediction.label1_1}`}
+                        text2={`${prediction.label1_2}`}
+                        navi={props}
+                        params={{
+                            title: prediction.label1_1,
+                            uri: imgUri,
+                            num: num,
+                            id: id,
+                            pw: pw,
+                            phone: phone,
+                            name: name,
+                            email: email,
+                        }}
                     />
                     <CustomList
-                        text1= {`2. ${prediction.label2_1}`}
-                        text2= {`${prediction.label2_2}`}
-                        title= {prediction.label2_1}
-                        navi= {props}
-                        uri= {imgUri}
+                        text1={`2. ${prediction.label2_1}`}
+                        text2={`${prediction.label2_2}`}
+                        navi={props}
+                        params={{
+                            title: prediction.label2_1,
+                            uri: imgUri,
+                            num: num,
+                            id: id,
+                            pw: pw,
+                            phone: phone,
+                            name: name,
+                            email: email,
+                        }}
                     />
                     <CustomList
-                        text1= {`3. ${prediction.label3_1}`}
-                        text2= {`${prediction.label3_2}`}
-                        title= {prediction.label3_1}
-                        navi= {props}
-                        uri= {imgUri}
+                        text1={`3. ${prediction.label3_1}`}
+                        text2={`${prediction.label3_2}`}
+                        navi={props}
+                        params={{
+                            title: prediction.label3_1,
+                            uri: imgUri,
+                            num: num,
+                            id: id,
+                            pw: pw,
+                            phone: phone,
+                            name: name,
+                            email: email,
+                        }}
                     />
                     <CustomList
-                        text1= {`4. ${prediction.label4_1}`} 
-                        text2= {`${prediction.label4_2}`} 
-                        title= {prediction.label4_1}
-                        navi= {props}
-                        uri= {imgUri}
+                        text1={`4. ${prediction.label4_1}`}
+                        text2={`${prediction.label4_2}`}
+                        navi={props}
+                        params={{
+                            title: prediction.label4_1,
+                            uri: imgUri,
+                            num: num,
+                            id: id,
+                            pw: pw,
+                            phone: phone,
+                            name: name,
+                            email: email,
+                        }}
                     />
                     <CustomList
-                        text1= {`5. ${prediction.label5_1}`}
-                        text2= {`${prediction.label5_2}`}
-                        title= {prediction.label5_1}
-                        navi= {props}
-                        uri= {imgUri}
+                        text1={`5. ${prediction.label5_1}`}
+                        text2={`${prediction.label5_2}`}
+                        navi={props}
+                        params={{
+                            title: prediction.label5_1,
+                            uri: imgUri,
+                            num: num,
+                            id: id,
+                            pw: pw,
+                            phone: phone,
+                            name: name,
+                            email: email,
+                        }}
                     />
                     <CustomList
-                        text1= {`일치하지 않아요!`}
-                        navi= {props}
-                        uri= {imgUri}
+                        text1={`일치하지 않아요!`}
+                        navi={props}
+                        params={{
+                            uri: imgUri,
+                            num: num,
+                            id: id,
+                            pw: pw,
+                            phone: phone,
+                            name: name,
+                            email: email,
+                        }}
                     />
                 </View>
             ) : (
@@ -175,7 +252,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 0,
         bottom: 0,
-    },  
+    },
 
 
 

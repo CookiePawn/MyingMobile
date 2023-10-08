@@ -13,13 +13,23 @@ import { collection, getDocs, addDoc } from 'firebase/firestore';
 
 
 const UserInput = (props) => {
+
+    //로그인 확인
     const { params } = props.route;
+    const num = params ? params.num : null;
+    const id = params ? params.id : null;
+    const pw = params ? params.pw : null;
+    const name = params ? params.name : null;
+    const email = params ? params.email : null;
+    const phone = params ? params.phone : null;
+
+
     const imgUri = params ? params.uri : null;
     const title = params ? params.title : null;
 
     const [titleInput, setTitleInput] = useState(title)
     const [nameInput, setNameInput] = useState('')
-    const [priceInput, setPriceInput] = useState('')
+    const [priceInput, setPriceInput] = useState('0')
 
 
     const uploadDB = async() => {
@@ -32,6 +42,14 @@ const UserInput = (props) => {
                 image: imgUri,
             });
             alert('등록되었습니다!')
+            props.navigation.navigate('Main', {
+                num: num,
+                id: id,
+                pw: pw,
+                phone: phone,
+                name: name,
+                email: email,
+            })
         } catch (error) {
             console.log(error)
         }
@@ -45,7 +63,7 @@ const UserInput = (props) => {
 
     return (
         <View style={styles.mainView}>
-            <View style={styles.iconView}>
+            <View style={[styles.iconView, {left: 0}]}>
                 <TouchableOpacity 
                     style={styles.icon}
                     onPress={() => {
@@ -53,6 +71,36 @@ const UserInput = (props) => {
                     }}
                 >
                     <Icon name= 'arrow-back-outline' size={30} color= 'black'/>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={[styles.icon, {right: 0}]}
+                    onPress={() => {
+                        props.navigation.navigate('Main', {
+                            num: num,
+                            id: id,
+                            pw: pw,
+                            phone: phone,
+                            name: name,
+                            email: email,
+                        })
+                    }}
+                >
+                    <Icon name='home-outline' size={30} color='black'/>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                    style={[styles.icon, {right: 50}]}
+                    onPress={() => {
+                        props.navigation.navigate('UserCamera', {
+                            num: num,
+                            id: id,
+                            pw: pw,
+                            phone: phone,
+                            name: name,
+                            email: email,
+                        })
+                    }}
+                >
+                    <Icon name='camera-outline' size={30} color='black'/>
                 </TouchableOpacity>
             </View>
            <Image
@@ -121,7 +169,6 @@ const styles = StyleSheet.create({
     },
     icon: {
         position: 'absolute',
-        left: 0,
         bottom: 0,
     },  
 

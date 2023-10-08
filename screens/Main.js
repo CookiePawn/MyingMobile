@@ -7,7 +7,7 @@ import {
     StyleSheet,
 } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import db from '../DB/Firebase'
 import { collection, getDocs } from 'firebase/firestore';
 import { useIsFocused } from '@react-navigation/native';
@@ -17,26 +17,34 @@ import { useIsFocused } from '@react-navigation/native';
 
 
 
-const CustomList = (props) => {
-        return (
-            <View style={styles.objectSubView}>
-                <Image style={styles.objectImage} source={props.image}/>
-                <Text>{props.name}</Text>
-                <Text>{props.price}원</Text>
-            </View> 
-        )
-}
-
-
-
-
 
 
 
 
 const Main = (props) => {
-    const [objects, setObjects] = useState([]) 
+
+    //로그인 확인
+    const { params } = props.route;
+    const num = params ? params.num : null;
+    const id = params ? params.id : null;
+    const pw = params ? params.pw : null;
+    const name = params ? params.name : null;
+    const email = params ? params.email : null;
+    const phone = params ? params.phone : null;
+
+    const [objects, setObjects] = useState([])
     const isFocused = useIsFocused();
+
+
+    // 총 금액을 계산하는 함수
+    const calculateTotalPrice = () => {
+        const totalPrice = objects.reduce((acc, item) => {
+            return acc + parseInt(item.price);
+        }, 0);
+
+        if (num === null) return '로그인이 필요합니다'
+        return totalPrice;
+    };
 
 
 
@@ -69,58 +77,98 @@ const Main = (props) => {
 
 
     return (
-        <View style={styles.mainView}>  
+        <View style={styles.mainView}>
             <View style={styles.iconView}>
-                <TouchableOpacity style={styles.icon}>
-                    <Icon name='exit-outline' size={30} color='black'/>
-                </TouchableOpacity>
+                {num !== null && (
+                    <TouchableOpacity
+                        style={styles.icon}
+                        onPress={() => {
+                            props.navigation.navigate("Main");
+                            alert('로그아웃 되었습니다');
+                        }}
+                    >
+                        <Icon name='exit-outline' size={30} color='black' />
+                    </TouchableOpacity>
+                )}
             </View>
             <View style={styles.categoryView}>
                 <Text style={styles.titleText}>Category</Text>
                 <View style={styles.categorySubView}>
                     <View style={styles.categorySubSubView}>
-                        <TouchableOpacity style={styles.listBtn}>
-                            <Image style={[styles.image, {borderTopLeftRadius: 20, borderBottomLeftRadius: 20}]} source={require('../assets/list.jpg')}/>
-                            <Text style={[styles.listTitleText, {color: 'white'}]}>등록한 물건</Text>
+                        <TouchableOpacity
+                            style={styles.listBtn}
+                            onPress={() => {
+                                if (num !== null) {
+                                    props.navigation.navigate('ObjectList', {
+                                        num: num,
+                                        id: id,
+                                        pw: pw,
+                                        phone: phone,
+                                        name: name,
+                                        email: email,
+                                    })
+                                } else {
+                                    alert('로그인이 필요합니다!')
+                                }
+
+                            }}
+                        >
+                            <Image style={[styles.image, { borderTopLeftRadius: 20, borderBottomLeftRadius: 20 }]} source={require('../assets/list.jpg')} />
+                            <Text style={[styles.listTitleText, { color: 'white' }]}>등록한 물건</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.categorySubSubView}>
-                        <TouchableOpacity 
-                            style={[styles.cameraBtn, {marginBottom: 10, borderTopRightRadius: 20}]}
+                        <TouchableOpacity
+                            style={[styles.cameraBtn, { marginBottom: 10, borderTopRightRadius: 20 }]}
                             onPress={() => {
-                                props.navigation.navigate('UserCamera')
+                                if (num !== null) {
+                                    props.navigation.navigate('UserCamera', {
+                                        num: num,
+                                        id: id,
+                                        pw: pw,
+                                        phone: phone,
+                                        name: name,
+                                        email: email,
+                                    })
+                                } else {
+                                    alert('로그인이 필요합니다!')
+                                }
                             }}
                         >
-                            <Image style={[styles.image, {borderTopRightRadius: 20}]} source={require('../assets/camera.jpg')}/>
+                            <Image style={[styles.image, { borderTopRightRadius: 20 }]} source={require('../assets/camera.jpg')} />
                             <Text style={styles.listTitleText}>물건 등록</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={[styles.cameraBtn, {borderBottomRightRadius: 20}]}>
-                            <Icon name='person' size={50} color='white'/>
-                            <Text style={[styles.listTitleText, {color: 'white'}]}>개인 정보</Text>
+                        <TouchableOpacity
+                            style={[styles.cameraBtn, { borderBottomRightRadius: 20 }]}
+                            onPress={() => {
+                                if (num !== null) {
+                                    props.navigation.navigate('MyPage', {
+                                        num: num,
+                                        id: id,
+                                        pw: pw,
+                                        phone: phone,
+                                        name: name,
+                                        email: email,
+                                    })
+                                } else {
+                                    props.navigation.navigate('Login')
+                                }
+                            }}
+                        >
+                            <Icon name='person' size={50} color='white' />
+                            <Text style={[styles.listTitleText, { color: 'white' }]}>개인 정보</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
             </View>
-            <View style={styles.hotView}>
-                <Text style={styles.titleText}>Hot</Text>
-                <View style={styles.objectView}>
-                    <ScrollView 
-                        style={{flex: 1}}
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        showsVerticalScrollIndicator={false}
-                    >
-                        {objects.map((item, idx) => {
-                            return (
-                                <CustomList
-                                    image={{uri: item.image}}
-                                    name={item.name}
-                                    price={item.price}
-                                />
-                            )
-                        })}
-                        
-                    </ScrollView>
+            <View style={styles.priceView}>
+                <Text style={styles.titleText}>PRICE</Text>
+                <View style={styles.priceSubView}>
+                    <Text style={styles.totalPriceText}>
+                        <Text style={styles.totalPriceTitle}>총 자산{'\n'}</Text>
+                        {calculateTotalPrice()}
+                        <Text style={{ fontSize: 20 }}> 원</Text>
+                    </Text>
                 </View>
             </View>
         </View>
@@ -201,28 +249,36 @@ const styles = StyleSheet.create({
     },
 
 
-    //인기 물건 뷰
-    hotView: {
+
+    //금액 뷰
+    priceView: {
         width: '90%',
         marginTop: 50,
     },
-    objectView: {
+    priceSubView: {
         width: '100%',
-        flexDirection: 'row',
-    },
-    objectSubView: {
-        width: 150,
         height: 200,
-        backgroundColor: '#1111',
-        borderRadius: 10,
-        marginRight: 15,
+        backgroundColor: '#c9c9c9',
+        borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    objectImage: {
-        width: 80,
-        height: 80,
-        borderRadius: 100,
-        backgroundColor: 'white',
+    totalPriceTitle: {
+        fontSize: 15,
+        color: 'white',
+        fontWeight: 100
     },
+    totalPriceText: {
+        color: 'white',
+        fontSize: 35,
+        fontWeight: 'bold',
+    },
+
+
+
+
+
+
+
+
 })
