@@ -7,6 +7,8 @@ import {
     StyleSheet,
 } from 'react-native';
 import { Camera } from 'expo-camera';
+import * as MediaLibrary from 'expo-media-library';
+import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/Ionicons'
 
 const UserCamera = (props) => {
@@ -28,8 +30,21 @@ const UserCamera = (props) => {
     const [imgUri, setImgUri] = useState(null)
     const cameraRef = useRef(null);
 
+
+
+    useEffect(() => {
+        if (imgUri) {
+            // imgUri가 변경되면 실행되는 코드
+            uploadImage()
+            setImgUri(null)
+            // 여기에서 다른 작업을 수행할 수 있습니다.
+        }
+    }, [imgUri]);
+
+    
+
     // Flask 서버 엔드포인트 URL
-    const serverUrl = 'http://192.168.0.2:5000';
+    const serverUrl = 'http://10.20.37.251:8080';
 
     useEffect(() => {
         (async () => {
@@ -47,11 +62,39 @@ const UserCamera = (props) => {
 
     const takePicture = async () => {
         if (cameraRef.current) {
-            const photo = await cameraRef.current.takePictureAsync();
-            console.log(photo.uri)
-            setImgUri(photo.uri)
+          try {
+            const options = { quality: 0.5, base64: true };
+            const data = await cameraRef.current.takePictureAsync(options);
+            const asset = await MediaLibrary.createAssetAsync(data.uri);
+          } catch (error) {
+            console.error('사진을 갤러리에 저장하는 중 오류 발생:', error);
+          }
+        } else {
+          console.log('카메라를 찾을 수 없습니다.');
+        }
+      };
+      
+
+    const chooseImage = async () => {
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    
+        if (permission.granted) {
+            try {
+                const result = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                    allowsEditing: true,
+                    aspect: [1, 1],
+                });
+    
+                setImgUri(result.assets[0].uri);
+            } catch (error) {
+                console.log('ImagePicker 오류:', error);
+            }
+        } else {
+            console.log('갤러리 접근 권한이 없습니다.');
         }
     };
+    
 
 
 
@@ -136,19 +179,12 @@ const UserCamera = (props) => {
                     }}>
                     <Icon name='sync-outline' size={30} color='white' />
                 </TouchableOpacity>
-                {imgUri !== null && (
-                    <TouchableOpacity
-                        style={styles.useImageView}
-                        onPress={() => {
-                            uploadImage()
-                        }}
-                    >
-                        <Image
-                            style={styles.useImage}
-                            source={{ uri: imgUri }}
-                        />
-                    </TouchableOpacity>
-                )}
+                <TouchableOpacity
+                    style={styles.useImageView}
+                    onPress={chooseImage}
+                >
+                    <Icon name='flower-outline' size={35} color='white'/>
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -211,10 +247,6 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: 'gray',
         borderRadius: 20,
-    },
-    useImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 20,
+        padding: 10,
     },
 })
