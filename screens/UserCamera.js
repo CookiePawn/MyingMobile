@@ -41,10 +41,10 @@ const UserCamera = (props) => {
         }
     }, [imgUri]);
 
-    
+
 
     // Flask 서버 엔드포인트 URL
-    const serverUrl = 'http://10.20.37.251:8080';
+    const serverUrl = 'http://192.168.0.2:8080';
 
     useEffect(() => {
         (async () => {
@@ -62,22 +62,28 @@ const UserCamera = (props) => {
 
     const takePicture = async () => {
         if (cameraRef.current) {
-          try {
-            const options = { quality: 0.5, base64: true };
-            const data = await cameraRef.current.takePictureAsync(options);
-            const asset = await MediaLibrary.createAssetAsync(data.uri);
-          } catch (error) {
-            console.error('사진을 갤러리에 저장하는 중 오류 발생:', error);
-          }
+            try {
+                const options = { quality: 0.5, base64: true };
+                const data = await cameraRef.current.takePictureAsync(options);
+                const permission = await MediaLibrary.requestPermissionsAsync();
+                if (permission.granted) {
+                    const asset = await MediaLibrary.createAssetAsync(data.uri);
+                } else {
+                    console.log('갤러리 접근 권한이 없습니다.');
+                }
+            } catch (error) {
+                console.error('사진을 갤러리에 저장하는 중 오류 발생:', error);
+            }
         } else {
-          console.log('카메라를 찾을 수 없습니다.');
+            console.log('카메라를 찾을 수 없습니다.');
         }
-      };
-      
+    };
+    
+
 
     const chooseImage = async () => {
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    
+
         if (permission.granted) {
             try {
                 const result = await ImagePicker.launchImageLibraryAsync({
@@ -85,7 +91,7 @@ const UserCamera = (props) => {
                     allowsEditing: true,
                     aspect: [1, 1],
                 });
-    
+
                 setImgUri(result.assets[0].uri);
             } catch (error) {
                 console.log('ImagePicker 오류:', error);
@@ -94,7 +100,7 @@ const UserCamera = (props) => {
             console.log('갤러리 접근 권한이 없습니다.');
         }
     };
-    
+
 
 
 
@@ -183,7 +189,7 @@ const UserCamera = (props) => {
                     style={styles.useImageView}
                     onPress={chooseImage}
                 >
-                    <Icon name='flower-outline' size={35} color='white'/>
+                    <Icon name='flower-outline' size={35} color='white' />
                 </TouchableOpacity>
             </View>
         </View>

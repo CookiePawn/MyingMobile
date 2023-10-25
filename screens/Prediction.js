@@ -59,7 +59,7 @@ const Prediction = (props) => {
         setPrediction({})
 
         // Flask 서버 엔드포인트 URL
-        const serverUrl = 'http://10.20.37.251:8080';
+        const serverUrl = 'http://192.168.0.2:8080';
 
         setTimeout(() => {
             // '/predictTopPrediction' 엔드포인트에 GET 요청 보내기
